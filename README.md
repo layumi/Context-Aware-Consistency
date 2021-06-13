@@ -15,6 +15,8 @@ This is the official PyTorch implementation of our paper [**Semi-supervised Sema
 ## Environment
 The repository is tested on Ubuntu 18.04.3 LTS, Python 3.6.9, PyTorch 1.6.0 and CUDA 10.2
 ```
+conda create --name semi python=3.6.9
+conda activate semi
 pip install -r requirements.txt
 ```
 
