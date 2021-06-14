@@ -70,7 +70,7 @@ python3 train.py --config [CONFIG_PATH] --resume [CHECKPOINT_PATH] --test True
 ```
 
 ```
-python3 train.py --config configs/voc_cac_deeplabv3+_resnet50_1over8_datalist0.json --resume snapshots/city_1over8_datalist0_deeplabv3+_resnet50.pth --test True
+python3 train.py --config configs/voc_cac_deeplabv3+_resnet101_1over8_datalist0.json --resume snapshots/voc_1over8_datalist0_deeplabv3+_resnet101.pth --test True
 ```
 
 ## Pre-trained Models
