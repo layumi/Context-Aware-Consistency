@@ -33,6 +33,7 @@ parts/
 sdist/
 var/
 wheels/
+VOCtrainval_11-May-2012/
 *.egg-info/
 .installed.cfg
 *.egg
