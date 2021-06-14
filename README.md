@@ -69,6 +69,10 @@ For testing, run the following command.
 python3 train.py --config [CONFIG_PATH] --resume [CHECKPOINT_PATH] --test True
 ```
 
+```
+python3 train.py --config configs/voc_cac_deeplabv3+_resnet50_1over8_datalist0.json --resume snapshots/city_1over8_datalist0_deeplabv3+_resnet50.pth --test True
+```
+
 ## Pre-trained Models
 
 For your convenience, you can download some of the pre-trained models from [Here](https://mycuhk-my.sharepoint.com/:f:/g/personal/1155154502_link_cuhk_edu_hk/EpHdT2JFT11FpsUc4jHE3CoB2wUZ5tQo_W0QzzqHdNtF-A?e=yx2Xha).
