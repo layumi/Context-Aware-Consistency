@@ -4,6 +4,7 @@ from torch.utils import tensorboard
 from utils import helpers
 from utils import logger
 import utils.lr_scheduler
+import swa_utils
 from utils.helpers import dir_exists
 
 def get_instance(module, name, config, *args):
@@ -13,6 +14,13 @@ class BaseTrainer:
     def __init__(self, model, resume, config, iters_per_epoch, train_logger=None, gpu=None, test=False):
         self.model = model
         self.config = config
+
+        if 'swa' in config:
+            self.swa=config['swa']
+            self.swa_flag=config['swa']
+        else:
+            self.swa=False
+            self.swa_flag = False
 
         if gpu == 0:
             self.train_logger = train_logger
@@ -39,7 +47,11 @@ class BaseTrainer:
                             {'params': list(filter(lambda p:p.requires_grad, self.model.get_backbone_params())), 
                             'lr': config['optimizer']['args']['lr'] / 10}]
 
-        self.model = torch.nn.parallel.DistributedDataParallel(self.model.cuda(), device_ids=[gpu], find_unused_parameters=True)
+        if config['n_gpu']>1:
+            self.model = torch.nn.parallel.DistributedDataParallel(self.model.cuda(), device_ids=[gpu], find_unused_parameters=True)
+        else:
+            self.model.cuda()
+        self.swa_model = swa_utils.AveragedModel(self.model)
 
         # CONFIGS
         cfg_trainer = self.config['trainer']
@@ -101,6 +113,8 @@ class BaseTrainer:
 
 
     def train(self):
+        #print(self.model)
+
         if self.test:
             results = self._valid_epoch(0)
             if self.gpu == 0:
@@ -112,6 +126,13 @@ class BaseTrainer:
         for epoch in range(self.start_epoch, self.epochs+1):
             self._train_epoch(epoch)
             if self.do_validation and epoch % self.config['trainer']['val_per_epochs'] == 0:
+
+                if self.swa: #and self.gpu == 0:
+                    self.swa_model.update_parameters(self.model)
+                    with torch.no_grad():
+                        swa_utils.update_bn2( self.supervised_loader, self.unsupervised_loader, self.swa_model, device = 'cuda')
+                    self.swa_model.eval()
+
                 results = self._valid_epoch(epoch)
                 if self.gpu == 0:
                     self.logger.info('\n\n Epoch {}:'.format(epoch))
@@ -156,7 +177,7 @@ class BaseTrainer:
         state = {
             'arch': type(self.model).__name__,
             'epoch': epoch,
-            'state_dict': self.model.state_dict(),
+            'state_dict': self.model.state_dict() if not self.swa else self.swa_model.state_dict(),
             'monitor_best': self.mnt_best,
             'config': self.config
         }

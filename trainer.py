@@ -11,6 +11,7 @@ from utils.helpers import colorize_mask
 from utils.metrics import eval_metrics, AverageMeter
 from tqdm import tqdm
 from PIL import Image
+import swa_utils
 from utils.helpers import DeNormalize
 import torch.distributed as dist
 
@@ -23,7 +24,6 @@ class Trainer(BaseTrainer):
         self.unsupervised_loader = unsupervised_loader
         self.val_loader = val_loader
         self.iter_per_epoch = iter_per_epoch
-
         self.ignore_index = self.val_loader.dataset.ignore_index
         self.wrt_mode, self.wrt_step = 'train_', 0
         self.log_step = config['trainer'].get('log_per_iter', int(np.sqrt(self.val_loader.batch_size)))
@@ -31,7 +31,10 @@ class Trainer(BaseTrainer):
             self.log_step = int(self.log_step / self.val_loader.batch_size) + 1
 
         self.num_classes = self.val_loader.dataset.num_classes
-        self.mode = self.model.module.mode
+        if config['n_gpu'] > 1:
+            self.mode = self.model.module.mode
+        else:
+            self.mode = self.model.mode
 
         # TRANSORMS FOR VISUALIZATION
         self.restore_transform = transforms.Compose([
@@ -71,7 +74,7 @@ class Trainer(BaseTrainer):
             input_l, target_l = input_l.cuda(non_blocking=True), target_l.cuda(non_blocking=True)
             input_ul, target_ul = input_ul.cuda(non_blocking=True), target_ul.cuda(non_blocking=True)
             self.optimizer.zero_grad()
-
+            #print(input_ul.shape)
             if self.mode == 'supervised':
                 total_loss, cur_losses, outputs = self.model(x_l=input_l, target_l=target_l, x_ul=input_ul,
                                                             curr_iter=batch_idx, target_ul=target_ul, epoch=epoch-1)
@@ -131,6 +134,8 @@ class Trainer(BaseTrainer):
             self.logger.info('\n###### EVALUATION ######')
 
         self.model.eval()
+        if self.swa:
+            self.swa_model.eval()
         self.wrt_mode = 'val'
         
         total_loss_val = AverageMeter()
@@ -144,13 +149,15 @@ class Trainer(BaseTrainer):
 
             for batch_idx, (data, target) in enumerate(tbar):
                 target, data = target.cuda(non_blocking=True), data.cuda(non_blocking=True)
-
                 H, W = target.size(1), target.size(2)
                 up_sizes = (ceil(H / 8) * 8, ceil(W / 8) * 8)
                 pad_h, pad_w = up_sizes[0] - data.size(2), up_sizes[1] - data.size(3)
                 data = F.pad(data, pad=(0, pad_w, 0, pad_h), mode='reflect')
 
-                output = self.model(data)
+                if self.swa:
+                    output = self.swa_model(data)
+                else:
+                    output = self.model(data)
 
                 output = output[:, :, :H, :W]
                 # LOSS
@@ -196,7 +203,7 @@ class Trainer(BaseTrainer):
                 'val_loss': total_loss_val.average,
                 **seg_metrics
             }
-            
+
         return log
 
     def _reset_metrics(self):

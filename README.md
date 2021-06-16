@@ -62,6 +62,11 @@ python3 train.py --config configs/voc_cac_deeplabv3+_resnet50_1over8_datalist0.j
 python3 train.py --config configs/voc_cac_deeplabv3+_resnet101_1over8_datalist0.json
 ```
 
+### Adaboost
+```
+python3 train.py --config configs/AdaBoost_voc_cac_deeplabv3+_resnet50_1over8_datalist0.json
+```
+
 ## Testing
 For testing, run the following command.
 

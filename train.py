@@ -9,6 +9,7 @@ import models
 import math
 from utils import Logger
 from trainer import Trainer
+import swa_utils
 import torch.nn.functional as F
 from utils.losses import abCE_loss, CE_loss, consistency_weight
 
