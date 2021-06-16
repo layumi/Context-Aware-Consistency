@@ -2,7 +2,7 @@
     "name": "CAC",
     "experim_name": "voc_cac_deeplabv3+_resnet101_1over8_datalist0",
     "dataset": "voc",
-    "data_dir": "/home/xinlai/VOCtrainval_11-May-2012",
+    "data_dir": "./VOCtrainval_11-May-2012",
     "datalist": 0,
     "n_gpu": 2,
     "n_labeled_examples": 1323,
