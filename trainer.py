@@ -154,7 +154,7 @@ class Trainer(BaseTrainer):
                 pad_h, pad_w = up_sizes[0] - data.size(2), up_sizes[1] - data.size(3)
                 data = F.pad(data, pad=(0, pad_w, 0, pad_h), mode='reflect')
 
-                if self.swa:
+                if self.swa and epoch > self.swa_start:
                     output = self.swa_model(data)
                 else:
                     output = self.model(data)

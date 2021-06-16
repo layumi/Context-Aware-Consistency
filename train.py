@@ -31,12 +31,15 @@ def main(gpu, ngpus_per_node, config, resume, test):
     
     torch.cuda.set_device(gpu)
     assert config['train_supervised']['batch_size'] % config['n_gpu'] == 0
+    assert config['alldata']['batch_size'] % config['n_gpu'] == 0
     assert config['train_unsupervised']['batch_size'] % config['n_gpu'] == 0
     assert config['val_loader']['batch_size'] % config['n_gpu'] == 0
     config['train_supervised']['batch_size'] = int(config['train_supervised']['batch_size'] / config['n_gpu'])
+    config['alldata']['batch_size'] = int(config['alldata']['batch_size'] / config['n_gpu'])
     config['train_unsupervised']['batch_size'] = int(config['train_unsupervised']['batch_size'] / config['n_gpu'])
     config['val_loader']['batch_size'] = int(config['val_loader']['batch_size'] / config['n_gpu'])
     config['train_supervised']['num_workers'] = int(config['train_supervised']['num_workers'] / config['n_gpu'])
+    config['alldata']['num_workers'] = int(config['alldata']['num_workers'] / config['n_gpu'])
     config['train_unsupervised']['num_workers'] = int(config['train_unsupervised']['num_workers'] / config['n_gpu'])
     config['val_loader']['num_workers'] = int(config['val_loader']['num_workers'] / config['n_gpu'])
     dist.init_process_group(backend='nccl', init_method=config['dist_url'], world_size=config['world_size'], rank=config['rank'])
@@ -52,12 +55,15 @@ def main(gpu, ngpus_per_node, config, resume, test):
 
     # DATA LOADERS
     config['train_supervised']['n_labeled_examples'] = config['n_labeled_examples']
+    config['alldata']['n_labeled_examples'] = config['n_labeled_examples']
     config['train_unsupervised']['n_labeled_examples'] = config['n_labeled_examples']
     config['train_unsupervised']['use_weak_lables'] = config['use_weak_lables']
     config['train_supervised']['data_dir'] = config['data_dir']
+    config['alldata']['data_dir'] = config['data_dir']
     config['train_unsupervised']['data_dir'] = config['data_dir']
     config['val_loader']['data_dir'] = config['data_dir']
     config['train_supervised']['datalist'] = config['datalist']
+    config['alldata']['datalist'] = config['datalist']
     config['train_unsupervised']['datalist'] = config['datalist']
     config['val_loader']['datalist'] = config['datalist']
 
@@ -69,6 +75,7 @@ def main(gpu, ngpus_per_node, config, resume, test):
         unsup_dataloader = dataloaders.PairCity
 
     supervised_loader = sup_dataloader(config['train_supervised'])
+    alldata_loader = sup_dataloader(config['alldata'])
     unsupervised_loader = unsup_dataloader(config['train_unsupervised'])
     val_loader = sup_dataloader(config['val_loader'])
 

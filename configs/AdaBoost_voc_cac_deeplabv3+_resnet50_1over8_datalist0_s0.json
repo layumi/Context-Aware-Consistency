@@ -1,6 +1,6 @@
 {
     "name": "CAC",
-    "experim_name": "voc_cac_deeplabv3+_resnet50_1over8_datalist0",
+    "experim_name": "AdaBoost_voc_cac_deeplabv3+_resnet50_1over8_datalist0_s0",
     "dataset": "voc",
     "data_dir": "./VOCtrainval_11-May-2012",
     "datalist": 0,
@@ -15,6 +15,9 @@
     "weakly_loss_w": 0.4,
     "pretrained": true,
     "random_seed": 42,
+    "swa": true,
+    "swa_start": 0,
+    "swa_iteration": 5000,
 
     "model":{
         "supervised": false,
@@ -58,7 +61,7 @@
         "rotate": false,
         "blur": false,
         "split": "train_supervised",
-        "num_workers": 4
+        "num_workers": 2
     },
 
     "alldata": {
@@ -71,7 +74,7 @@
         "flip": true,
         "rotate": false,
         "blur": false,
-        "split": "all",
+        "split": "alldata",
         "num_workers": 4
     },
 
@@ -86,7 +89,7 @@
         "rotate": false,
         "blur": false,
         "split": "train_unsupervised",
-        "num_workers": 4,
+        "num_workers": 2,
         "iou_bound": [0.1, 1.0],
         "stride": 8
     },
@@ -96,13 +99,13 @@
         "val": true,
         "split": "val",
         "shuffle": false,
-        "num_workers": 4
+        "num_workers": 2
     },
 
     "trainer": {
         "epochs": 80,
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 5,
   
         "monitor": "max Mean_IoU",
         "early_stop": 100,
@@ -112,6 +115,6 @@
         "log_per_iter": 20,
 
         "val": true,
-        "val_per_epochs": 1
+        "val_per_epochs": 5
     }
 }

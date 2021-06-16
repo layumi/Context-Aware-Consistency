@@ -15,11 +15,15 @@ class BaseTrainer:
         self.model = model
         self.config = config
 
-        if 'swa' in config:
+        if 'swa' in config: #Student Weight Aggregation
             self.swa=config['swa']
+            self.swa_start=config['swa_start']
+            self.swa_iteration=config['swa_iteration']
             self.swa_flag=config['swa']
         else:
             self.swa=False
+            self.swa_start = 0
+            self.swa_iteration = 5000
             self.swa_flag = False
 
         if gpu == 0:
@@ -128,10 +132,11 @@ class BaseTrainer:
             if self.do_validation and epoch % self.config['trainer']['val_per_epochs'] == 0:
 
                 if self.swa: #and self.gpu == 0:
-                    self.swa_model.update_parameters(self.model)
-                    with torch.no_grad():
-                        swa_utils.update_bn2( self.supervised_loader, self.unsupervised_loader, self.swa_model, device = 'cuda')
-                    self.swa_model.eval()
+                    if epoch > self.swa_start:
+                        self.swa_model.update_parameters(self.model)
+                        with torch.no_grad():
+                            swa_utils.update_bn2( self.alldata_loader, self.unsupervised_loader, self.swa_model, device = 'cuda')
+                        self.swa_model.eval()
 
                 results = self._valid_epoch(epoch)
                 if self.gpu == 0:

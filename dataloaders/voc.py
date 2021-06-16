@@ -47,7 +47,7 @@ class PairVOCDataset(BaseDataSet):
         self.root = os.path.join(self.root, 'VOCdevkit/VOC2012')
         
         prefix = "dataloaders/voc_splits{}".format(self.datalist)
-        if self.split == "val":
+        if self.split in ["val", "alldata"]:
             file_list = os.path.join(prefix, f"{self.split}" + ".txt")
         elif self.split in ["train_supervised", "train_unsupervised"]:
             file_list = os.path.join(prefix, f"{self.n_labeled_examples}_{self.split}" + ".txt")
@@ -217,7 +217,7 @@ class VOCDataset(BaseDataSet):
 
         prefix = "dataloaders/voc_splits{}".format(self.datalist)
 
-        if self.split == "val":
+        if self.split in ["val", "alldata"]:
             file_list = os.path.join(prefix, f"{self.split}" + ".txt")
         elif self.split in ["train_supervised", "train_unsupervised"]:
             file_list = os.path.join(prefix, f"{self.n_labeled_examples}_{self.split}" + ".txt")

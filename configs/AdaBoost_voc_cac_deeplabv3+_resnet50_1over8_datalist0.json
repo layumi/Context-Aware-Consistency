@@ -16,6 +16,8 @@
     "pretrained": true,
     "random_seed": 42,
     "swa": true,
+    "swa_start": 20,
+    "swa_iteration": 5000,
 
     "model":{
         "supervised": false,
@@ -59,7 +61,21 @@
         "rotate": false,
         "blur": false,
         "split": "train_supervised",
-        "num_workers": 8
+        "num_workers": 2
+    },
+
+    "alldata": {
+        "batch_size": 16,
+        "crop_size": 320,
+        "shuffle": true,
+        "base_size": 400,
+        "scale": true,
+        "augment": true,
+        "flip": true,
+        "rotate": false,
+        "blur": false,
+        "split": "alldata",
+        "num_workers": 4
     },
 
     "train_unsupervised": {
@@ -73,7 +89,7 @@
         "rotate": false,
         "blur": false,
         "split": "train_unsupervised",
-        "num_workers": 8,
+        "num_workers": 2,
         "iou_bound": [0.1, 1.0],
         "stride": 8
     },
@@ -83,13 +99,13 @@
         "val": true,
         "split": "val",
         "shuffle": false,
-        "num_workers": 4
+        "num_workers": 2
     },
 
     "trainer": {
         "epochs": 80,
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 5,
   
         "monitor": "max Mean_IoU",
         "early_stop": 100,
@@ -99,6 +115,6 @@
         "log_per_iter": 20,
 
         "val": true,
-        "val_per_epochs": 1
+        "val_per_epochs": 5
     }
 }
