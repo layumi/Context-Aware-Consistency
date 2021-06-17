@@ -71,7 +71,7 @@
         "flip": true,
         "rotate": false,
         "blur": false,
-        "split": "all",
+        "split": "alldata",
         "num_workers": 4
     },
 
