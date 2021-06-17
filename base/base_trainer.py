@@ -56,6 +56,8 @@ class BaseTrainer:
         else:
             self.model.cuda()
 
+        #self.swa_model = self.model
+        self.swa_model = swa_utils.AveragedModel(self.model)
         # CONFIGS
         cfg_trainer = self.config['trainer']
         self.epochs = cfg_trainer['epochs']
@@ -128,12 +130,10 @@ class BaseTrainer:
             return 
 
         for epoch in range(self.start_epoch, self.epochs+1):
-            self._train_epoch(epoch)
+            #self._train_epoch(epoch)
             if self.do_validation and epoch % self.config['trainer']['val_per_epochs'] == 0:
 
-                if self.swa and self.gpu == 0:
-                    if epoch == 0:
-                        self.swa_model = swa_utils.AveragedModel(self.model)
+                if self.swa: # and self.gpu == 0:
                     if epoch > self.swa_start:
                         self.swa_model.update_parameters(self.model)
                         with torch.no_grad():

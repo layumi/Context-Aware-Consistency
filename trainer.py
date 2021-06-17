@@ -135,7 +135,7 @@ class Trainer(BaseTrainer):
             self.logger.info('\n###### EVALUATION ######')
 
         self.model.eval()
-        if self.swa:
+        if self.swa and epoch>self.swa_start:
             self.swa_model.eval()
         self.wrt_mode = 'val'
         
