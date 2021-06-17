@@ -55,7 +55,6 @@ class BaseTrainer:
             self.model = torch.nn.parallel.DistributedDataParallel(self.model.cuda(), device_ids=[gpu], find_unused_parameters=True)
         else:
             self.model.cuda()
-        self.swa_model = swa_utils.AveragedModel(self.model)
 
         # CONFIGS
         cfg_trainer = self.config['trainer']
@@ -119,6 +118,7 @@ class BaseTrainer:
     def train(self):
         #print(self.model)
 
+
         if self.test:
             results = self._valid_epoch(0)
             if self.gpu == 0:
@@ -131,7 +131,9 @@ class BaseTrainer:
             self._train_epoch(epoch)
             if self.do_validation and epoch % self.config['trainer']['val_per_epochs'] == 0:
 
-                if self.swa: #and self.gpu == 0:
+                if self.swa and self.gpu == 0:
+                    if epoch == 0:
+                        self.swa_model = swa_utils.AveragedModel(self.model)
                     if epoch > self.swa_start:
                         self.swa_model.update_parameters(self.model)
                         with torch.no_grad():
