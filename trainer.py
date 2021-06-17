@@ -16,10 +16,11 @@ from utils.helpers import DeNormalize
 import torch.distributed as dist
 
 class Trainer(BaseTrainer):
-    def __init__(self, model, resume, config, supervised_loader, unsupervised_loader, iter_per_epoch,
+    def __init__(self, model, resume, config, alldata_loader, supervised_loader, unsupervised_loader, iter_per_epoch,
                 val_loader=None, train_logger=None, gpu=None, gt_loader=None, test=False):
         super(Trainer, self).__init__(model, resume, config, iter_per_epoch, train_logger, gpu=gpu, test=test)
         
+        self.alldata_loader = alldata_loader
         self.supervised_loader = supervised_loader
         self.unsupervised_loader = unsupervised_loader
         self.val_loader = val_loader

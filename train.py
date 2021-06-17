@@ -93,6 +93,7 @@ def main(gpu, ngpus_per_node, config, resume, test):
         model=model,
         resume=resume,
         config=config,
+        alldata_loader = alldata_loader,
         supervised_loader=supervised_loader,
         unsupervised_loader=unsupervised_loader,
         val_loader=val_loader,
